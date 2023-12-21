@@ -81,8 +81,10 @@ def run_dmypy(args: list[str]) -> tuple[str, str, int]:
     # modifying sys.stdout/sys.stderr, but that hasn't been done for
     # the dmypy client, so we just do the non-threadsafe thing.
     def f(stdout: TextIO, stderr: TextIO) -> None:
+        
         old_stdout = sys.stdout
         old_stderr = sys.stderr
+        
         try:
             sys.stdout = stdout
             sys.stderr = stderr

@@ -26,6 +26,7 @@ from mypy.modulefinder import BuildSource, FindModuleCache, SearchPaths, get_sea
 from mypy.options import COMPLETE_FEATURES, INCOMPLETE_FEATURES, BuildType, Options
 from mypy.split_namespace import SplitNamespace
 from mypy.version import __version__
+from security import safe_command
 
 orig_stat: Final = os.stat
 MEM_PROFILE: Final = False  # If True, dump memory profile
@@ -1570,5 +1571,5 @@ def install_types(
             print(formatter.style("mypy: Skipping installation", "red", bold=True))
             sys.exit(2)
         print()
-    subprocess.run(cmd)
+    safe_command.run(subprocess.run, cmd)
     return True

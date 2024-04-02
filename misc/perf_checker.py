@@ -9,6 +9,7 @@ import subprocess
 import textwrap
 import time
 from typing import Callable
+from security import safe_command
 
 
 class Command:
@@ -29,8 +30,7 @@ def delete_folder(folder_path: str) -> None:
 
 
 def execute(command: list[str]) -> None:
-    proc = subprocess.Popen(
-        " ".join(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True
+    proc = safe_command.run(subprocess.Popen, " ".join(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True
     )
     stdout_bytes, stderr_bytes = proc.communicate()
     stdout, stderr = stdout_bytes.decode("utf-8"), stderr_bytes.decode("utf-8")

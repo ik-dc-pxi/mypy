@@ -21,6 +21,7 @@ import textwrap
 from collections.abc import Mapping
 
 import requests
+from security import safe_command
 
 
 def check_state() -> None:
@@ -43,7 +44,7 @@ def update_typeshed(typeshed_dir: str, commit: str | None) -> str:
     """
     assert os.path.isdir(os.path.join(typeshed_dir, "stdlib"))
     if commit:
-        subprocess.run(["git", "checkout", commit], check=True, cwd=typeshed_dir)
+        safe_command.run(subprocess.run, ["git", "checkout", commit], check=True, cwd=typeshed_dir)
     commit = git_head_commit(typeshed_dir)
 
     stdlib_dir = os.path.join("mypy", "typeshed", "stdlib")
@@ -149,14 +150,13 @@ def main() -> None:
             raise ValueError("GITHUB_TOKEN environment variable must be set")
 
     branch_name = "mypybot/sync-typeshed"
-    subprocess.run(["git", "checkout", "-B", branch_name, "origin/master"], check=True)
+    safe_command.run(subprocess.run, ["git", "checkout", "-B", branch_name, "origin/master"], check=True)
 
     if not args.typeshed_dir:
         # Clone typeshed repo if no directory given.
         with tempfile.TemporaryDirectory() as tempdir:
             print(f"Cloning typeshed in {tempdir}...")
-            subprocess.run(
-                ["git", "clone", "https://github.com/python/typeshed.git"], check=True, cwd=tempdir
+            safe_command.run(subprocess.run, ["git", "clone", "https://github.com/python/typeshed.git"], check=True, cwd=tempdir
             )
             repo = os.path.join(tempdir, "typeshed")
             commit = update_typeshed(repo, args.commit)
@@ -174,8 +174,8 @@ def main() -> None:
         https://github.com/python/typeshed/commit/{commit}
         """
     )
-    subprocess.run(["git", "add", "--all", os.path.join("mypy", "typeshed")], check=True)
-    subprocess.run(["git", "commit", "-m", message], check=True)
+    safe_command.run(subprocess.run, ["git", "add", "--all", os.path.join("mypy", "typeshed")], check=True)
+    safe_command.run(subprocess.run, ["git", "commit", "-m", message], check=True)
     print("Created typeshed sync commit.")
 
     commits_to_cherry_pick = [
@@ -186,7 +186,7 @@ def main() -> None:
     ]
     for commit in commits_to_cherry_pick:
         try:
-            subprocess.run(["git", "cherry-pick", commit], check=True)
+            safe_command.run(subprocess.run, ["git", "cherry-pick", commit], check=True)
         except subprocess.CalledProcessError:
             if not sys.__stdin__.isatty():
                 # We're in an automated context
@@ -203,7 +203,7 @@ def main() -> None:
         print(f"Cherry-picked {commit}.")
 
     if args.make_pr:
-        subprocess.run(["git", "push", "--force", "origin", branch_name], check=True)
+        safe_command.run(subprocess.run, ["git", "push", "--force", "origin", branch_name], check=True)
         print("Pushed commit.")
 
         warning = "Note that you will need to close and re-open the PR in order to trigger CI."

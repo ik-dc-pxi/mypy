@@ -46,6 +46,7 @@ import time
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from typing import Any, Dict, Final
 from typing_extensions import TypeAlias as _TypeAlias
+from security import safe_command
 
 CACHE_PATH: Final = ".incremental_checker_cache.json"
 MYPY_REPO_URL: Final = "https://github.com/python/mypy.git"
@@ -67,8 +68,7 @@ def delete_folder(folder_path: str) -> None:
 
 
 def execute(command: list[str], fail_on_error: bool = True) -> tuple[str, str, int]:
-    proc = subprocess.Popen(
-        " ".join(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True
+    proc = safe_command.run(subprocess.Popen, " ".join(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True
     )
     stdout_bytes, stderr_bytes = proc.communicate()
     stdout, stderr = stdout_bytes.decode("utf-8"), stderr_bytes.decode("utf-8")

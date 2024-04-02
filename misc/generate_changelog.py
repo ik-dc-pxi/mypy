@@ -7,10 +7,11 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass
+from security import safe_command
 
 
 def find_all_release_branches() -> list[tuple[int, int]]:
-    result = subprocess.run(["git", "branch", "-r"], text=True, capture_output=True, check=True)
+    result = safe_command.run(subprocess.run, ["git", "branch", "-r"], text=True, capture_output=True, check=True)
     versions = []
     for line in result.stdout.splitlines():
         line = line.strip()
@@ -22,8 +23,7 @@ def find_all_release_branches() -> list[tuple[int, int]]:
 
 
 def git_merge_base(rev1: str, rev2: str) -> str:
-    result = subprocess.run(
-        ["git", "merge-base", rev1, rev2], text=True, capture_output=True, check=True
+    result = safe_command.run(subprocess.run, ["git", "merge-base", rev1, rev2], text=True, capture_output=True, check=True
     )
     return result.stdout.strip()
 
@@ -46,8 +46,7 @@ def normalize_author(author: str) -> str:
 
 
 def git_commit_log(rev1: str, rev2: str) -> list[CommitInfo]:
-    result = subprocess.run(
-        ["git", "log", "--pretty=%H\t%an\t%s", f"{rev1}..{rev2}"],
+    result = safe_command.run(subprocess.run, ["git", "log", "--pretty=%H\t%an\t%s", f"{rev1}..{rev2}"],
         text=True,
         capture_output=True,
         check=True,
@@ -168,7 +167,7 @@ def main() -> None:
 
     if not local:
         print("Running 'git fetch' to fetch all release branches...")
-        subprocess.run(["git", "fetch"], check=True)
+        safe_command.run(subprocess.run, ["git", "fetch"], check=True)
 
     if minor > 0:
         prev_major = major

@@ -13,6 +13,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from security import safe_command
 
 
 def parse_commit_title(diff: str) -> str:
@@ -41,13 +42,11 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory() as d:
         diff_file = os.path.join(d, "diff")
-        out = subprocess.run(
-            ["git", "show", commit], capture_output=True, text=True, check=True, cwd=typeshed_dir
+        out = safe_command.run(subprocess.run, ["git", "show", commit], capture_output=True, text=True, check=True, cwd=typeshed_dir
         )
         with open(diff_file, "w") as f:
             f.write(out.stdout)
-        subprocess.run(
-            [
+        safe_command.run(subprocess.run, [
                 "git",
                 "apply",
                 "--index",
@@ -60,7 +59,7 @@ def main() -> None:
         )
 
         title = parse_commit_title(out.stdout)
-        subprocess.run(["git", "commit", "-m", f"Typeshed cherry-pick: {title}"], check=True)
+        safe_command.run(subprocess.run, ["git", "commit", "-m", f"Typeshed cherry-pick: {title}"], check=True)
 
     print()
     print(f"Cherry-picked commit {commit} from {typeshed_dir}")

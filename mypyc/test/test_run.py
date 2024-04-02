@@ -33,6 +33,7 @@ from mypyc.test.testutil import (
     show_c,
     use_custom_builtins,
 )
+from security import safe_command
 
 files = [
     "run-async.test",
@@ -302,8 +303,7 @@ class TestRun(MypycDataSuite):
                 "Test can't pass in debugging mode. "
                 "(Make sure to pass -s to pytest to interact with the debugger)"
             )
-        proc = subprocess.Popen(
-            [sys.executable, driver_path],
+        proc = safe_command.run(subprocess.Popen, [sys.executable, driver_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             env=env,

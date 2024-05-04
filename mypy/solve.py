@@ -210,8 +210,6 @@ def solve_iteratively(
             if lowers[tv] or uppers[tv]:
                 solvable_tv = tv
                 break
-        else:
-            break
         # Solve each solvable type variable separately.
         s_batch.remove(solvable_tv)
         result = solve_one(lowers[solvable_tv], uppers[solvable_tv])

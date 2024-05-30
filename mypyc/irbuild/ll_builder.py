@@ -179,6 +179,7 @@ from mypyc.primitives.tuple_ops import list_tuple_op, new_tuple_op, new_tuple_wi
 from mypyc.rt_subtype import is_runtime_subtype
 from mypyc.sametype import is_same_type
 from mypyc.subtype import is_subtype
+import math
 
 DictEntry = Tuple[Optional[Value], Value]
 
@@ -2014,7 +2015,7 @@ class LowLevelIRBuilder:
         """
         op_id = float_op_to_id[op]
         if op_id in (FloatOp.DIV, FloatOp.MOD):
-            if not (isinstance(rhs, Float) and rhs.value != 0.0):
+            if not (isinstance(rhs, Float) and not math.isclose(rhs.value, 0.0, rel_tol=1e-09, abs_tol=0.0)):
                 c = self.compare_floats(rhs, Float(0.0), FloatComparisonOp.EQ, line)
                 err, ok = BasicBlock(), BasicBlock()
                 self.add(Branch(c, err, ok, Branch.BOOL, rare=True))

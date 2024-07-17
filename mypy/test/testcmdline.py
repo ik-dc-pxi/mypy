@@ -18,6 +18,7 @@ from mypy.test.helpers import (
     check_test_output_files,
     normalize_error_messages,
 )
+from security import safe_command
 
 try:
     import lxml  # type: ignore[import-untyped]
@@ -75,8 +76,7 @@ def test_python_cmdline(testcase: DataDrivenTestCase, step: int) -> None:
         env["PYTHONPATH"] += os.pathsep + extra_path
     cwd = os.path.join(test_temp_dir, custom_cwd or "")
     args = [arg.replace("$CWD", os.path.abspath(cwd)) for arg in args]
-    process = subprocess.Popen(
-        fixed + args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, env=env
+    process = safe_command.run(subprocess.Popen, fixed + args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, env=env
     )
     outb, errb = process.communicate()
     result = process.returncode

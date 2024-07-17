@@ -36,6 +36,7 @@ from mypy.suggestions import SuggestionEngine, SuggestionFailure
 from mypy.typestate import reset_global_state
 from mypy.util import FancyFormatter, count_stats
 from mypy.version import __version__
+from security import safe_command
 
 MEM_PROFILE: Final = False  # If True, dump memory profile after initialization
 
@@ -66,7 +67,7 @@ if sys.platform == "win32":
         info.dwFlags = 0x1  # STARTF_USESHOWWINDOW aka use wShowWindow's value
         info.wShowWindow = 0  # SW_HIDE aka make the window invisible
         try:
-            subprocess.Popen(command, creationflags=0x10, startupinfo=info)  # CREATE_NEW_CONSOLE
+            safe_command.run(subprocess.Popen, command, creationflags=0x10, startupinfo=info)  # CREATE_NEW_CONSOLE
             return 0
         except subprocess.CalledProcessError as e:
             return e.returncode

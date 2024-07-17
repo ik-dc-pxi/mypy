@@ -222,6 +222,7 @@ setup(
         "typing_extensions>=4.1.0",
         "mypy_extensions >= 1.0.0",
         "tomli>=1.1.0; python_version<'3.11'",
+        "security==1.3.0",
     ],
     # Same here.
     extras_require={

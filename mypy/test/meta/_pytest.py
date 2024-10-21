@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Iterable
 
 from mypy.test.config import test_data_prefix
+from security import safe_command
 
 
 @dataclass
@@ -49,7 +50,7 @@ def run_pytest_data_suite(
         cmd = shlex.join(extra_args)
         for i in range(max_attempts - 1, -1, -1):
             print(f">> {cmd}")
-            proc = subprocess.run(extra_args, capture_output=True, check=False, cwd=p_root)
+            proc = safe_command.run(subprocess.run, extra_args, capture_output=True, check=False, cwd=p_root)
             if proc.returncode == 0:
                 break
             prefix = "NESTED PYTEST STDOUT"

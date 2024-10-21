@@ -14,6 +14,7 @@ import mypy.api
 from mypy.test.config import package_path, pip_lock, pip_timeout, test_temp_dir
 from mypy.test.data import DataDrivenTestCase, DataSuite
 from mypy.test.helpers import assert_string_arrays_equal, perform_file_operations
+from security import safe_command
 
 # NOTE: options.use_builtins_fixtures should not be set in these
 # tests, otherwise mypy will ignore installed third-party packages.
@@ -34,8 +35,7 @@ def virtualenv(python_executable: str = sys.executable) -> Iterator[tuple[str, s
     Returns the path to the created Python executable
     """
     with tempfile.TemporaryDirectory() as venv_dir:
-        proc = subprocess.run(
-            [python_executable, "-m", "venv", venv_dir], cwd=os.getcwd(), capture_output=True
+        proc = safe_command.run(subprocess.run, [python_executable, "-m", "venv", venv_dir], cwd=os.getcwd(), capture_output=True
         )
         if proc.returncode != 0:
             err = proc.stdout.decode("utf-8") + proc.stderr.decode("utf-8")
@@ -61,7 +61,7 @@ def upgrade_pip(python_executable: str) -> None:
     install_cmd = [python_executable, "-m", "pip", "install", "pip>=21.3.1"]
     try:
         with filelock.FileLock(pip_lock, timeout=pip_timeout):
-            proc = subprocess.run(install_cmd, capture_output=True, env=os.environ)
+            proc = safe_command.run(subprocess.run, install_cmd, capture_output=True, env=os.environ)
     except filelock.Timeout as err:
         raise Exception(f"Failed to acquire {pip_lock}") from err
     if proc.returncode != 0:
@@ -86,7 +86,7 @@ def install_package(
         env.update(os.environ)
         try:
             with filelock.FileLock(pip_lock, timeout=pip_timeout):
-                proc = subprocess.run(install_cmd, cwd=working_dir, capture_output=True, env=env)
+                proc = safe_command.run(subprocess.run, install_cmd, cwd=working_dir, capture_output=True, env=env)
         except filelock.Timeout as err:
             raise Exception(f"Failed to acquire {pip_lock}") from err
     if proc.returncode != 0:

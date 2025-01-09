@@ -96,7 +96,7 @@ def create_or_update_pull_request(*, title: str, body: str, branch_name: str) ->
             "base": "master",
         },
         headers=get_github_api_headers(),
-    ) as response:
+    timeout=60) as response:
         resp_json = response.json()
         if response.status_code == 422 and any(
             "A pull request already exists" in e.get("message", "")
@@ -107,7 +107,7 @@ def create_or_update_pull_request(*, title: str, body: str, branch_name: str) ->
                 "https://api.github.com/repos/python/mypy/pulls",
                 params={"state": "open", "head": f"{fork_owner}:{branch_name}", "base": "master"},
                 headers=get_github_api_headers(),
-            ) as response:
+            timeout=60) as response:
                 response.raise_for_status()
                 resp_json = response.json()
                 assert len(resp_json) >= 1
@@ -117,7 +117,7 @@ def create_or_update_pull_request(*, title: str, body: str, branch_name: str) ->
                 f"https://api.github.com/repos/python/mypy/pulls/{pr_number}",
                 json={"title": title, "body": body},
                 headers=get_github_api_headers(),
-            ) as response:
+            timeout=60) as response:
                 response.raise_for_status()
             return
         response.raise_for_status()

@@ -20,13 +20,13 @@ from __future__ import annotations
 import argparse
 import glob
 import os
-import random
 import shutil
 import statistics
 import subprocess
 import sys
 import threading
 import time
+import secrets
 
 
 def heading(s: str) -> None:
@@ -116,7 +116,7 @@ def main() -> None:
         else:
             print(f"Run {n}/{num_runs - 1}...")
         items = list(enumerate(commits))
-        random.shuffle(items)
+        secrets.SystemRandom().shuffle(items)
         for i, commit in items:
             tt = run_benchmark(target_dirs[i], self_check_dir)
             # Don't record the first warm-up run

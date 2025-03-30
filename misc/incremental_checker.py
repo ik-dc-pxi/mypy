@@ -36,7 +36,6 @@ from __future__ import annotations
 import base64
 import json
 import os
-import random
 import re
 import shutil
 import subprocess
@@ -46,6 +45,7 @@ import time
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from typing import Any, Dict, Final
 from typing_extensions import TypeAlias as _TypeAlias
+import secrets
 
 CACHE_PATH: Final = ".incremental_checker_cache.json"
 MYPY_REPO_URL: Final = "https://github.com/python/mypy.git"
@@ -353,8 +353,8 @@ def test_repo(
         commits = commits[: params.limit]
     if params.sample:
         seed = params.seed or base64.urlsafe_b64encode(os.urandom(15)).decode("ascii")
-        random.seed(seed)
-        commits = random.sample(commits, params.sample)
+        secrets.SystemRandom().seed(seed)
+        commits = secrets.SystemRandom().sample(commits, params.sample)
         print("Sampled down to %d commits using random seed %s" % (len(commits), seed))
 
     # Stage 3: Find and cache expected results for each commit (without incremental mode)

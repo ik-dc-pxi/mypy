@@ -27,6 +27,7 @@ import subprocess
 import sys
 import threading
 import time
+from security import safe_command
 
 
 def heading(s: str) -> None:
@@ -40,7 +41,7 @@ def build_mypy(target_dir: str) -> None:
     env["CC"] = "clang"
     env["MYPYC_OPT_LEVEL"] = "2"
     cmd = [sys.executable, "setup.py", "--use-mypyc", "build_ext", "--inplace"]
-    subprocess.run(cmd, env=env, check=True, cwd=target_dir)
+    safe_command.run(subprocess.run, cmd, env=env, check=True, cwd=target_dir)
 
 
 def clone(target_dir: str, commit: str | None) -> None:
@@ -72,7 +73,7 @@ def run_benchmark(compiled_dir: str, check_dir: str) -> float:
     cmd += glob.glob(os.path.join(abschk, "mypy/*/*.py"))
     t0 = time.time()
     # Ignore errors, since some commits being measured may generate additional errors.
-    subprocess.run(cmd, cwd=compiled_dir, env=env)
+    safe_command.run(subprocess.run, cmd, cwd=compiled_dir, env=env)
     return time.time() - t0
 
 

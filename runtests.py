@@ -5,6 +5,7 @@ from __future__ import annotations
 import subprocess
 from subprocess import Popen
 from sys import argv, executable, exit
+from security import safe_command
 
 # Slow test suites
 CMDLINE = "PythonCmdline"
@@ -97,7 +98,7 @@ def run_cmd(name: str) -> int:
     status = 0
     cmd = cmds[name]
     print(f"run {name}: {cmd}")
-    proc = subprocess.run(cmd, stderr=subprocess.STDOUT)
+    proc = safe_command.run(subprocess.run, cmd, stderr=subprocess.STDOUT)
     if proc.returncode:
         print("\nFAILED: %s" % name)
         status = proc.returncode
@@ -108,7 +109,7 @@ def run_cmd(name: str) -> int:
 
 def start_background_cmd(name: str) -> Popen:
     cmd = cmds[name]
-    proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    proc = safe_command.run(subprocess.Popen, cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     return proc
 
 

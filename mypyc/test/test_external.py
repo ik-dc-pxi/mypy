@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from security import safe_command
 
 base_dir = os.path.join(os.path.dirname(__file__), "..", "..")
 
@@ -40,8 +41,7 @@ class TestExternal(unittest.TestCase):
             env = os.environ.copy()
             if "GTEST_COLOR" not in os.environ:
                 env["GTEST_COLOR"] = "yes"  # Use fancy colors
-            status = subprocess.call(
-                [sys.executable, "-c", "import sys, test_capi; sys.exit(test_capi.run_tests())"],
+            status = safe_command.run(subprocess.call, [sys.executable, "-c", "import sys, test_capi; sys.exit(test_capi.run_tests())"],
                 env=env,
                 cwd=tmpdir,
             )

@@ -24,6 +24,7 @@ from mypy.defaults import PYTHON3_VERSION
 from mypy.test.config import test_temp_dir
 from mypy.test.data import DataDrivenTestCase, DataSuite
 from mypy.test.helpers import assert_string_arrays_equal, split_lines
+from security import safe_command
 
 # Path to Python 3 interpreter
 python3_path = sys.executable
@@ -96,8 +97,7 @@ def test_python_evaluation(testcase: DataDrivenTestCase, cache_dir: str) -> None
         output.append("!!! Mypy crashed !!!")
     if returncode == 0 and not output:
         # Execute the program.
-        proc = subprocess.run(
-            [interpreter, "-Wignore", program], cwd=test_temp_dir, capture_output=True
+        proc = safe_command.run(subprocess.run, [interpreter, "-Wignore", program], cwd=test_temp_dir, capture_output=True
         )
         output.extend(split_lines(proc.stdout, proc.stderr))
     # Remove temp file.

@@ -30,6 +30,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from security import safe_command
 
 REVEAL_TYPE_START = "reveal_type("
 REVEAL_TYPE_END = ")"
@@ -40,8 +41,7 @@ def update_line(line: str, s: str, pos: int) -> str:
 
 
 def run_mypy(mypy_and_args: list[str], filename: str, tmp_name: str) -> str:
-    proc = subprocess.run(
-        mypy_and_args + ["--shadow-file", filename, tmp_name], stdout=subprocess.PIPE
+    proc = safe_command.run(subprocess.run, mypy_and_args + ["--shadow-file", filename, tmp_name], stdout=subprocess.PIPE
     )
     assert isinstance(
         proc.stdout, bytes

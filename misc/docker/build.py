@@ -17,6 +17,7 @@ import argparse
 import os
 import subprocess
 import sys
+from security import safe_command
 
 
 def main() -> None:
@@ -38,7 +39,7 @@ def main() -> None:
     if args.pull:
         cmdline.append("--pull")
     cmdline.append(rootdir)
-    result = subprocess.run(cmdline)
+    result = safe_command.run(subprocess.run, cmdline)
     sys.exit(result.returncode)
 
 
